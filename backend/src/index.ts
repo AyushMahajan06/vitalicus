@@ -1,21 +1,74 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import { renderPrescriptionPDF, type PrescriptionPayload } from './services/pdf';
+
+// Make env access type-safe for custom keys
+const ENV = process.env as Record<string, string | undefined>;
 
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_ORIGIN?.split(',') || true }));
+
+// CORS (allow single or comma-separated FRONTEND_ORIGIN)
+app.use(
+  cors({
+    origin: ENV.FRONTEND_ORIGIN ? ENV.FRONTEND_ORIGIN.split(',') : true,
+  })
+);
 app.use(express.json());
 
+// Serve generated PDFs from /files/<id>.pdf
+const filesDir = path.resolve(__dirname, '..', 'generated');
+app.use('/files', express.static(filesDir, { maxAge: '5m' }));
+
+// Healthcheck
 app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'backend' }));
 
-app.post('/api/prescriptions', (_req, res) =>
-  res.status(501).json({ error: 'Not implemented: prescription PDF generation' })
-);
-app.post('/api/devices/webhook', (_req, res) =>
-  res.status(501).json({ error: 'Not implemented: device ingest' })
-);
+// Create prescription → generate PDF → return URL
+app.post('/api/prescriptions', async (req, res) => {
+  try {
+    const {
+      patientName,
+      drug1Name,
+      drug1Timing,
+      drug2Name,
+      drug2Timing,
+      notes,
+    } = req.body as PrescriptionPayload;
 
-const port = process.env.PORT || 8080;
+    // required fields
+    if (!patientName?.trim() || !drug1Name?.trim() || !drug1Timing?.trim()) {
+      return res
+        .status(400)
+        .json({ error: 'Missing required fields: patientName, drug1Name, drug1Timing' });
+    }
+
+    const id = uuidv4();
+    const outPath = path.join(filesDir, `${id}.pdf`);
+
+    await renderPrescriptionPDF(
+      {
+        patientName: patientName.trim(),
+        drug1Name: drug1Name.trim(),
+        drug1Timing: drug1Timing.trim(),
+        drug2Name: drug2Name?.trim() || undefined,
+        drug2Timing: drug2Timing?.trim() || undefined,
+        notes: notes?.trim() || undefined,
+      },
+      outPath
+    );
+
+    // Build absolute file URL
+    const base = ENV.PUBLIC_BASE_URL || `http://localhost:${ENV.PORT || '8080'}`;
+    const url = `${base}/files/${id}.pdf`;
+
+    res.json({ id, url });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to generate prescription' });
+  }
+});
+
+const port = Number(ENV.PORT || 8080);
 app.listen(port, () => console.log(`API listening on :${port}`));
