@@ -1,19 +1,13 @@
 import Image from "next/image";
+import HeroVideo from "./HeroVideo";
 
 export default function Hero() {
   return (
     <section className="hero">
-      <video
-        className="hero-video"
-        src="/videos/hero.mp4" 
-        autoPlay
-        muted
-        loop
-        playsInline
-      />
+      <HeroVideo></HeroVideo>
 
       
-
+X
       <div className="container stack-l hero-content">
         <div className="stack-s">
           <div className="hero-brandline">

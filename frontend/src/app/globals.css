@@ -5,9 +5,9 @@
   --text: #eef1f6;
   --muted: #a9b1c2;
   --line: #2a313c;        /* crisp, neutral border */
-  --brand-1: #67d5f7;     /* calm turquoise (CTA) */
-  --brand-2: #c084fc;     /* accent only */
-  --brand-3: #60a5fa;
+  --brand-1: #14e8f8;     /* calm turquoise (CTA) */
+  --brand-2: #d13875;     /* accent only */
+  --brand-3: #48b8d4;
 
   /* components */
   --panel: #11161f;       /* solid panels, no gradients */
