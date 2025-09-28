@@ -83,10 +83,8 @@ body::before{
 
 
 .hero-presents {
-  margin: 0;
-  font-size: 18px;         /* subtle, not huge */
-  line-height: 0.7;
-  font-weight: 600;
+  font-size: 22px; /* up from 18 */
+  line-height: 1;
 }
 
 .hero{
@@ -97,9 +95,19 @@ body::before{
   z-index:1;
 }
 .hero-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; filter:brightness(.25); }
-.hero::before{
-  content:""; position:absolute; inset:0; z-index:1;
-  background:linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,.25) 35%, transparent 60%);
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* extend fade deeper down */
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.35) 35%,
+    rgba(18, 24, 33, 0.8) 70%,
+    var(--bg-page) 100%
+  );
 }
 .hero-content{ position:relative; z-index:2; }
 
@@ -112,7 +120,13 @@ body::before{
   z-index:1;                      /* sits behind next sections */
 }
 
-.h1 { font-size: clamp(44px, 7vw, 80px); line-height: 1.04; letter-spacing: -0.02em; margin-top: 0; margin-bottom: 14px; }
+.h1 {
+  font-size: clamp(56px, 8vw, 96px); /* bigger min + max */
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
 .h1-tight {margin-top: 0; }
 
 .gradient {
@@ -120,7 +134,12 @@ body::before{
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .kicker { height: 2px; width: 700px; background: #c15f85; opacity: .55; margin: 6px 0 8px; }
-.lede { font-size: 20px; line-height: 1.7; color: var(--muted); max-width: 860px; }
+.lede {
+  font-size: 22px; /* up from 20 */
+  line-height: 1.8;
+  color: var(--muted);
+  max-width: 900px;
+}
 
 /* STRIP (solid panels, crisp borders; no gradient glass) */
 .strip { display: grid; gap: 16px; grid-template-columns: 1fr; margin-top: 28px; }
@@ -166,13 +185,13 @@ body::before{
 .footer-inner { padding: 24px 0; color: var(--muted); }
 
 /* Live stats grid layout */
-.stats-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: 1fr;
-}
 @media (min-width: 800px) {
   .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-video { display: none; }
+  .hero::before { background: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,.25) 35%, transparent 60%); }
 }
 
 .section{ position:relative; z-index:2; }
@@ -195,3 +214,31 @@ body::before{
   min-height:360px;
 }
 .actions-row{ display:flex; gap:12px; justify-content:flex-end; margin:16px 0; }
+
+/* Inline logo + wordmark inside hero headline */
+.hero-wordmark {
+  display: inline-flex;
+  align-items: baseline;   /* baseline alignment keeps the text tidy */
+  gap: 12px;
+}
+
+/* Slight nudge so the circular icon visually centers on the text line */
+.logo-inline {
+  display: inline-flex;
+  align-items: center;
+  transform: translateY(2px); /* adjust 1–3px if your font renders differently */
+}
+
+/* Optional: smaller byline on its own line under the wordmark */
+.byline {
+  display: block;
+  margin-top: 8px;
+  font-size: clamp(16px, 2.4vw, 40px);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Tighten big-screen spacing a touch */
+@media (min-width: 900px) {
+  .hero-wordmark { gap: 14px; }
+}

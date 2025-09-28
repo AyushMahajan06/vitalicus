@@ -94,7 +94,7 @@ export default function LiveStatsSection({
         <SkinTempCard value={vitals.skinTemp} loading={loading} unit={tempUnit} />
       </div>
 
-      <div style={{ marginTop: 8, color: "var(--muted)", fontSize: 13 }}>
+      <div style={{ marginTop: 8, color: "var(--muted)", fontSize: 13 }} aria-live="polite">
         Last updated: {lastUpdated}
       </div>
     </section>
