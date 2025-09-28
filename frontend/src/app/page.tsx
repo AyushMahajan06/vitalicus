@@ -29,11 +29,26 @@ export default function HomePage() {
       {/* Live stats section */}
       <LiveStatsSection userId="demo-user" />
 
-      {/* Graphs shell + prescription action */}
+      {/* Graphs shell + actions */}
       <section className="container graphs-section">
-        <div className="actions-row">
+        <div className="actions-row center">
           <a className="btn gradient" href="/prescriptions/new">
             Generate Prescription
+          </a>
+
+          <a
+            className="btn gradient"
+            href={
+              "mailto:ayushgmahajan@gmail.com" +
+              "?subject=" +
+              encodeURIComponent("Vitalicus — Contact Request") +
+              "&body=" +
+              encodeURIComponent(
+                "Hi Rep,\n\nI'd like to connect about the patient desk buddy pilot.\n\n— "
+              )
+            }
+          >
+            Contact Rep
           </a>
         </div>
       </section>
