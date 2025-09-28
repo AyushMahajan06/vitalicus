@@ -1,46 +1,20 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import HeartRateCard from "./vitals/HeartRateCard";
-import SpO2Card from "./vitals/SpO2Card";
-import SkinTempCard from "./vitals/SkinTempCard";
+import FlipPanel from './dashboard/FlipPanel';
+import StatTile from './dashboard/StatTile';
 import { fetchLatestVitalsForUser, type VitalsSnapshot } from "@/lib/vitals";
 
-function RefreshIcon({ spinning }: { spinning?: boolean }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      style={{
-        transform: spinning ? "rotate(360deg)" : "none",
-        transition: "transform 0.6s ease",
-      }}
-      aria-hidden
-    >
-      <path
-        d="M20 12a8 8 0 1 1-2.34-5.66"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path d="M20 4v6h-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export default function LiveStatsSection({
-  userId = "demo-user", // TODO: pass the actual patient/user UID from auth or route
-  tempUnit = "°C",
+  userId = "demo-user",
 }: {
   userId?: string;
-  tempUnit?: "°C" | "°F" | string;
 }) {
   const [vitals, setVitals] = useState<VitalsSnapshot>({
     hr: null,
     spo2: null,
     skinTemp: null,
+    transcript: null,
     ts: null,
   });
   const [loading, setLoading] = useState(true);
@@ -58,44 +32,92 @@ export default function LiveStatsSection({
     }
   }
 
-  // Poll every 3 seconds
+  // Poll every 3 seconds and pause when tab is hidden
   useEffect(() => {
-    // initial load immediately
-    load();
-
-    timerRef.current = window.setInterval(load, 3000);
-    return () => {
+    function start() {
+      load();
+      timerRef.current = window.setInterval(load, 3000);
+    }
+    function stop() {
       if (timerRef.current) window.clearInterval(timerRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      timerRef.current = null;
+    }
+    const onVis = () => (document.hidden ? stop() : start());
+
+    start();
+    document.addEventListener("visibilitychange", onVis);
+    return () => { document.removeEventListener("visibilitychange", onVis); stop(); };
   }, [userId]);
 
-  const lastUpdated =
-    vitals.ts ? new Date(vitals.ts).toLocaleTimeString() : "—";
+  const display = (n: number | null, unit = "") => (n == null ? "—" : `${n}${unit}`);
 
   return (
-    <section className="container" style={{ marginTop: 32 }}>
-      <div className="row" style={{ marginBottom: 12 }}>
-        <h2 style={{ margin: 0 }}>Latest Patient Vitals</h2>
-        <button
-          className="btn ghost"
-          onClick={load}
-          aria-label="Refresh vitals"
-          style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
-        >
-          <RefreshIcon spinning={refreshing} />
-          Refresh
-        </button>
+    <section className="container section live-dash" aria-label="Live stats dashboard">
+      {/* Section title */}
+      <h2 style={{ margin: 0, fontSize: 24 }}>Latest Patient Stats</h2>
+      <p style={{ marginTop: 4, marginBottom: 16, color: "var(--muted)", fontSize: 14 }}>
+        Last Updated: {vitals.ts ? new Date(vitals.ts).toLocaleTimeString() : "—"}
+      </p>
+
+      {/* Top 3 tiles (now live values) */}
+      <div className="stat-tiles">
+        {/*HR*/}
+        <div className="tile" aria-label="Heart Rate">
+          <div className="tile-label">{loading ? "…" : display(vitals.hr, " bpm")}</div>
+          <div className="tile-label" style={{ position:'absolute', bottom:12, right:16, color:'var(--muted)' }}>
+            HR
+          </div>
+        </div>
+
+        {/*SpO2*/}
+        <div className="tile" aria-label="SpO2">
+          <div className="tile-label">{loading ? "…" : display(vitals.spo2, "%")}</div>
+          <div className="tile-label" style={{ position:'absolute', bottom:12, right:16, color:'var(--muted)' }}>
+            SpO₂
+          </div>
+        </div>
+
+        {/*Temp*/}
+        <div className="tile" aria-label="Temperature">
+          <div className="tile-label">
+            {loading
+              ? "…"
+              : vitals.skinTemp == null
+                ? "—"
+                : display((vitals.skinTemp * 9) / 5 + 32, " °F")}
+          </div>
+          <div className="tile-label" style={{ position: "absolute", bottom: 12, right: 16, color: "var(--muted)" }}>
+            Temp
+          </div>
+        </div>
       </div>
 
-      <div className="stats-grid">
-        <HeartRateCard value={vitals.hr} loading={loading} />
-        <SpO2Card value={vitals.spo2} loading={loading} />
-        <SkinTempCard value={vitals.skinTemp} loading={loading} unit={tempUnit} />
-      </div>
+      {/* AI Summary <-> Patient's Transcript */}
+      <FlipPanel
+        frontTitle="AI Summary"
+        backTitle="Patient's Transcript"
+        minHeight={260}
+        front={<div className="tile-label">AI Summary</div>}
+        back={
+          <div className="tile-label" style={{ textAlign: 'left' }}>
+            {vitals.transcript && vitals.transcript.trim().length > 0
+              ? <p style={{ margin:0, whiteSpace:'pre-wrap' }}>"{vitals.transcript}"</p>
+              : <span className="flip-title">Patient's Transcript (empty)</span>}
+          </div>
+        }
+      />
+
+      {/* Graph <-> Past Data (placeholders) */}
+      <FlipPanel
+        frontTitle="Graph"
+        backTitle="Past Data"
+        minHeight={300}
+        front={<div className="flip-title">Graph</div>}
+        back={<div className="flip-title">Past Data</div>}
+      />
 
       <div style={{ marginTop: 8, color: "var(--muted)", fontSize: 13 }} aria-live="polite">
-        Last updated: {lastUpdated}
+        {refreshing ? "Refreshing…" : ""}
       </div>
     </section>
   );

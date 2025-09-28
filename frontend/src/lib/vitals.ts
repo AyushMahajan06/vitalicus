@@ -1,8 +1,9 @@
 /**
- * RTDB vitals fetcher (temp mapping):
- * - humidity -> hr
- * - temperature -> skinTemp
- * - spo2 -> null (not present)
+ * RTDB vitals fetcher (real mapping):
+ * - sensors/heart/bpm     -> hr
+ * - sensors/heart/spo2    -> spo2
+ * - sensors/dht11/temperature -> skinTemp
+ * - text (root)           -> transcript
  */
 
 import { initializeApp, getApps } from "firebase/app";
@@ -30,7 +31,6 @@ function ensureAuth(): Promise<void> {
   authReady = new Promise((resolve) => {
     const unsub = onAuthStateChanged(auth, (u) => {
       if (u) {
-        // console.log("[vitals] signed in:", u.uid);
         unsub();
         resolve();
       } else {
@@ -47,32 +47,54 @@ export type VitalsSnapshot = {
   hr: number | null;
   spo2: number | null;
   skinTemp: number | null;
+  transcript: string | null;
   ts: number | null;
 };
 
 export async function fetchLatestVitalsForUser(_uid: string): Promise<VitalsSnapshot> {
   try {
-    // authenticate first (no-op if already signed in)
     await ensureAuth();
 
     const root = ref(rtdb);
-    const dhtSnap = await get(child(root, "sensors/dht11"));
-    const dht = dhtSnap.exists() ? (dhtSnap.val() as any) : {};
 
-    const humidity = toNumber(dht?.humidity);
-    const temperature = toNumber(dht?.temperature);
+    // Reads
+    const heartSnap = await get(child(root, "sensors/heart"));
+    const dhtSnap   = await get(child(root, "sensors/dht11"));
 
-    // console.log("[vitals] RTDB:", { humidity, temperature, raw: dht });
+    // Try both places for transcript: root /text and /sensors/text
+    const textRootSnap   = await get(child(root, "text"));
+    const textSensorSnap = await get(child(root, "sensors/text"));
 
-    return {
-      hr: humidity,          // TEMP: show humidity where “Heart Rate” goes
-      spo2: null,            // not in your RTDB sample
-      skinTemp: temperature, // temperature shown correctly
-      ts: Date.now(),
-    };
+    const heart = heartSnap.exists() ? (heartSnap.val() as any) : {};
+    const dht   = dhtSnap.exists()   ? (dhtSnap.val()   as any) : {};
+
+    // Prefer /text; fallback to /sensors/text
+    let transcriptRaw: unknown = null;
+    if (textRootSnap.exists()) {
+      transcriptRaw = textRootSnap.val();
+    } else if (textSensorSnap.exists()) {
+      transcriptRaw = textSensorSnap.val();
+    }
+
+    const hr       = toNumber(heart?.bpm);
+    const spo2     = toNumber(heart?.spo2);
+    const skinTemp = toNumber(dht?.temperature);
+
+    // Normalize transcript to a non-empty string or null
+    const transcript =
+      typeof transcriptRaw === "string"
+        ? transcriptRaw.trim() || null
+        : null;
+
+    // Uncomment for quick debugging in the browser console:
+    // console.log("[vitals]", { hr, spo2, skinTemp, transcript, from:
+    //   textRootSnap.exists() ? "/text" : textSensorSnap.exists() ? "/sensors/text" : "none"
+    // });
+
+    return { hr, spo2, skinTemp, transcript, ts: Date.now() };
   } catch (e) {
     console.error("[vitals] fetch failed:", e);
-    return { hr: null, spo2: null, skinTemp: null, ts: null };
+    return { hr: null, spo2: null, skinTemp: null, transcript: null, ts: null };
   }
 }
 

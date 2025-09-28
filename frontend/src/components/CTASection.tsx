@@ -9,7 +9,7 @@ export default function CTASection() {
         </p>
       </div>
       <div className="row" style={{ gap: 12 }}>
-        <button className="btn">Request Demo</button>
+        <button className="btn gradient">Request Demo</button>
         <button className="btn ghost">Contact</button>
       </div>
     </section>

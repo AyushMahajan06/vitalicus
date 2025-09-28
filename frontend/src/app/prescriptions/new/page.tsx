@@ -151,7 +151,15 @@ export default function NewPrescriptionPage() {
       if (!res.ok) throw new Error(data?.error || 'Failed to generate prescription');
 
       // Expecting backend to return { id, url } (signed URL to the PDF)
-      if (data?.url) setResultUrl(data.url);
+      if (data?.url) {
+        setResultUrl(data.url);
+        try {
+          // Auto-open the PDF in a new tab (fallback link remains if blocked)
+          window.open(data.url, '_blank', 'noopener,noreferrer');
+        } catch {
+          // pop-up blocked; the inline Download button still appears
+        }
+      }
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -172,6 +180,7 @@ export default function NewPrescriptionPage() {
             placeholder="e.g., Jane Doe"
             value={form.patientName}
             onChange={(e) => setForm({ ...form, patientName: e.target.value })}
+            autoComplete="name"
           />
         </Field>
 
@@ -182,6 +191,7 @@ export default function NewPrescriptionPage() {
               placeholder="e.g., Amoxicillin 500mg"
               value={form.drug1Name}
               onChange={(e) => setForm({ ...form, drug1Name: e.target.value })}
+              autoComplete="off"
             />
           </Field>
 
@@ -209,6 +219,7 @@ export default function NewPrescriptionPage() {
               placeholder="Optional"
               value={form.drug2Name}
               onChange={(e) => setForm({ ...form, drug2Name: e.target.value })}
+              autoComplete="off"
             />
           </Field>
 
