@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import FlipPanel from './dashboard/FlipPanel';
 import StatTile from './dashboard/StatTile';
 import { fetchLatestVitalsForUser, type VitalsSnapshot } from "@/lib/vitals";
+import PastDataTable from './dashboard/PastDataTable';
+import MetricsChart from './dashboard/MetricsChart';
 
 export default function LiveStatsSection({
   userId = "demo-user",
@@ -61,7 +63,7 @@ export default function LiveStatsSection({
 
       {/* Top 3 tiles (now live values) */}
       <div className="stat-tiles">
-        {/*HR*/}
+        {/* HR */}
         <div className="tile" aria-label="Heart Rate">
           <div className="tile-label">{loading ? "…" : display(vitals.hr, " bpm")}</div>
           <div className="tile-label" style={{ position:'absolute', bottom:12, right:16, color:'var(--muted)' }}>
@@ -69,7 +71,7 @@ export default function LiveStatsSection({
           </div>
         </div>
 
-        {/*SpO2*/}
+        {/* SpO2 */}
         <div className="tile" aria-label="SpO2">
           <div className="tile-label">{loading ? "…" : display(vitals.spo2, "%")}</div>
           <div className="tile-label" style={{ position:'absolute', bottom:12, right:16, color:'var(--muted)' }}>
@@ -77,20 +79,23 @@ export default function LiveStatsSection({
           </div>
         </div>
 
-        {/*Temp*/}
+        {/* Temp */}
         <div className="tile" aria-label="Temperature">
           <div className="tile-label">
             {loading
               ? "…"
               : vitals.skinTemp == null
                 ? "—"
-                : display((vitals.skinTemp * 9) / 5 + 32, " °F")}
+                : display(parseFloat(((vitals.skinTemp * 9) / 5 + 32).toFixed(1)), " °F")}
           </div>
-          <div className="tile-label" style={{ position: "absolute", bottom: 12, right: 16, color: "var(--muted)" }}>
+          <div
+            className="tile-label"
+            style={{ position: "absolute", bottom: 12, right: 16, color: "var(--muted)" }}
+          >
             Temp
           </div>
         </div>
-      </div>
+      </div> {/* <-- close stat-tiles */}
 
       {/* AI Summary <-> Patient's Transcript */}
       <FlipPanel
@@ -111,9 +116,9 @@ export default function LiveStatsSection({
       <FlipPanel
         frontTitle="Graph"
         backTitle="Past Data"
-        minHeight={300}
-        front={<div className="flip-title">Graph</div>}
-        back={<div className="flip-title">Past Data</div>}
+        minHeight={400}
+        front={<MetricsChart />}
+        back={<PastDataTable />}
       />
 
       <div style={{ marginTop: 8, color: "var(--muted)", fontSize: 13 }} aria-live="polite">

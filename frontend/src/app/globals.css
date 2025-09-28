@@ -330,14 +330,6 @@ body::before{
 .flip.is-flipped .flip-inner {
   transform: rotateY(180deg);
 }
-.flip-face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-}
 .flip-front { background: transparent; }
 .flip-back  { background: transparent; transform: rotateY(180deg); }
 
@@ -403,6 +395,7 @@ body::before{
   min-height: 260px;
   box-shadow: var(--shadow);
   overflow: hidden;
+  --tab-safe: 48px;
 }
 
 .swap-inner {
@@ -414,11 +407,10 @@ body::before{
 .swap-face {
   position: absolute;
   inset: 0;
-  padding: 20px;
-  display: grid;
-  place-items: center;
-  transition: opacity .28s ease, transform .28s ease;
-  will-change: opacity, transform;
+  padding: 12px;                                     /* keep your inner padding */
+  display: block;                                    /* was grid/place-items:center -> constraining */
+  backface-visibility: hidden;
+  padding-bottom: calc(12px + var(--tab-safe));
 }
 
 /* FRONT visible by default */
@@ -457,7 +449,8 @@ body::before{
   background: #0f1520;
   color: var(--text);
   font-size: 14px;
-  cursor: pointer;
+  cursor: pointer;  
+  z-index: 2;
 }
 .swap-tab:hover { background: rgba(255,255,255,.04); }
 
@@ -470,4 +463,131 @@ body::before{
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .swap-face { transition: none; }
+}
+
+
+/* --- Past Data table --- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: #141a24;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.data-table thead th {
+  position: sticky;          /* makes header stick */
+  top: 0;                    /* stick to top of scroll container */
+  z-index: 1;
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 600;
+  background: #141a24;       /* ensure header row stays solid */
+}
+
+.data-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:nth-child(odd) {
+  background: rgba(255,255,255,.02);
+}
+
+.table-scroll {
+  width: 100%;
+  max-height: 340px;
+  overflow: auto;
+  padding: 12px;
+}
+
+.table-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+
+/* --- Metrics chart card --- */
+.chart-card {
+  position: relative;
+  background: #141a24;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  height: 100%;
+  width: 100%;
+  display: block;                 /* prevent grid/flex parents from stretching abs children */
+}
+
+/* Controls live inside the chart */
+.chart-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;                   /* not inline-flex (some browsers will stretch with grid parents) */
+  align-items: center;
+  gap: 6px;
+  background: rgba(15,21,32,.85);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px;
+  inline-size: auto;               /* ensure it sizes to content only */
+  block-size: auto;                /* avoid vertical stretching */
+  max-height: 48px;                /* belt-and-suspenders cap */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Segmented toggle buttons */
+.segmented-btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: #0f1520;
+  color: var(--text);
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: .9;
+  line-height: 1;                  /* keep tight */
+}
+.segmented-btn[aria-pressed="true"] {
+  background: linear-gradient(to right, var(--brand-3), var(--brand-2));
+  color: #0b0f14;
+  border-color: transparent;
+  opacity: 1;
+}
+.segmented-btn:hover { opacity: 1; }
+
+/* Chart SVG look */
+.chart-svg { width: 100%; height: 100%; }
+.chart-grid line { stroke: rgba(255,255,255,.12); stroke-width: 1; } /* slightly stronger */
+.chart-axis { stroke: rgba(255,255,255,.35); stroke-width: 1.5; }    /* clearer axes */
+.chart-path { fill: none; stroke-width: 2.5; }
+
+/* Tick labels */
+.chart-label { font-size: 11px; fill: var(--muted); }
+
+/* Notice box for Temp */
+.notice {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 12px;
+  padding: 14px 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: left;
+  line-height: 1.6;
 }
