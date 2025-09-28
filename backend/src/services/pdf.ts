@@ -49,3 +49,4 @@ export async function renderPrescriptionPDF(
   await fs.mkdir(path.dirname(outFileAbsPath), { recursive: true });
   await fs.writeFile(outFileAbsPath, bytes);
 }
+    

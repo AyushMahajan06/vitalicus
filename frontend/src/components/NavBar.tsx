@@ -4,7 +4,7 @@ export default function NavBar() {
       <div className="container nav">
         <div className="brand">
           <span className="brand-mark" />
-          <span>Patient Desk Buddy</span>
+          <span >Vitalicus</span>
         </div>
 
         <nav className="menu">

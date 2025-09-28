@@ -1,16 +1,26 @@
-import NavBar from "../components/NavBar";
 import Hero from "../components/Hero";
-import SplitSection from "../components/SplitSection";
-import CTASection from "../components/CTASection";
+import LiveStatsSection from "../components/LiveStatsSection";
 import Footer from "../components/Footer";
 
-export default function HomePage(){
+export default function HomePage() {
   return (
     <>
-      <NavBar />
       <Hero />
-      <SplitSection />
-      <CTASection />
+
+      {/* Live stats section */}
+      <LiveStatsSection userId="demo-user" tempUnit="°C" />
+
+      {/* Graphs shell + prescription action */}
+      <section className="container graphs-section">
+        
+        <div className="graphs-panel">{/* charts will go here later */}</div>
+
+        <div className="actions-row">
+          <a className="btn" href="/prescriptions/new">Generate Prescription</a>
+        </div>
+
+      </section>
+
       <Footer />
     </>
   );

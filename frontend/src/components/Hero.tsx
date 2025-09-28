@@ -1,13 +1,12 @@
 import Image from "next/image";
 import HeroVideo from "./HeroVideo";
+import VitalicusLogo from "@/components/VitalicusLogo";
 
 export default function Hero() {
   return (
     <section className="hero">
       <HeroVideo></HeroVideo>
 
-      
-X
       <div className="container stack-l hero-content">
         <div className="stack-s">
           <div className="hero-brandline">
@@ -16,41 +15,19 @@ X
           </div>
 
           <h1 className="h1 h1-tight">
-            Team DBRC's
-            <br /> <span className="gradient">Health Tracker 3000</span>
+            <VitalicusLogo size={92} />
+            <span className="gradient">Vitalicus</span>
+            <br /> by Team DBRC
           </h1>
           <div className="kicker" />
           <p className="lede">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-            gravida lectus vitae congue posuere. Sed ultricies ligula vitae elit
-            fermentum posuere.
+            Seamlessly connecting doctors, patients, and reps with real-time vitals, AI insights, and secure communication for smarter healthcare decisions.
           </p>
         </div>
 
         
 
-        <div className="strip">
-          <article className="card stack-s">
-            <h4>Real-time Channels</h4>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-          </article>
-          <article className="card stack-s">
-            <h4>AI Technology</h4>
-            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
-          </article>
-          <article className="card stack-s">
-            <h4>On-Demand Access</h4>
-            <p>Duis aute irure dolor in reprehenderit in voluptate.</p>
-          </article>
-        </div>
-
-        <div className="logo-row">
-          <span className="logo-pill">Genentech</span>
-          <span className="logo-pill">BMS</span>
-          <span className="logo-pill">AstraZeneca</span>
-          <span className="logo-pill">Pfizer</span>
-          <span className="logo-pill">Novo Nordisk</span>
-        </div>
+        
       </div>
     </section>
   );
