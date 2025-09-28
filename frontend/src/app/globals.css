@@ -591,3 +591,43 @@ body::before{
   text-align: left;
   line-height: 1.6;
 }
+
+
+/* AI Summary face — self-contained, full-height */
+.ai-summary-root {
+  position: absolute;          /* fill the flip face */
+  inset: 0;
+  padding: 12px;
+  padding-bottom: calc(12px + var(--tab-safe, 48px)); /* keep the flip tab clear */
+  display: grid;
+  grid-template-rows: auto 1fr; /* header + content */
+  min-height: 0;               /* allow inner scrolling */
+}
+
+/* Header behavior */
+.ai-summary-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* left / button / right */
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-summary-header .ai-summary-title { grid-column: 1; }
+.ai-summary-header button {
+  grid-column: 2;              /* centered by default */
+  justify-self: center;
+}
+
+/* After first summary: title shows, button moves to top-right */
+.ai-summary-header.has-summary button {
+  grid-column: 3;
+  justify-self: end;
+}
+
+/* Content fills remaining space and scrolls when long */
+.ai-summary-content {
+  min-height: 0;
+  overflow: auto;
+  line-height: 1.7;
+  font-size: 16px;
+}

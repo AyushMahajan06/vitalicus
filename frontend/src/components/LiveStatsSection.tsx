@@ -6,6 +6,8 @@ import StatTile from './dashboard/StatTile';
 import { fetchLatestVitalsForUser, type VitalsSnapshot } from "@/lib/vitals";
 import PastDataTable from './dashboard/PastDataTable';
 import MetricsChart from './dashboard/MetricsChart';
+import AISummary from './dashboard/AISummary';
+
 
 export default function LiveStatsSection({
   userId = "demo-user",
@@ -102,11 +104,17 @@ export default function LiveStatsSection({
         frontTitle="AI Summary"
         backTitle="Patient's Transcript"
         minHeight={260}
-        front={<div className="tile-label">AI Summary</div>}
+        front={
+          <AISummary
+            transcript={vitals.transcript}
+            vitals={{ hr: vitals.hr, spo2: vitals.spo2, tempC: vitals.skinTemp }}
+          />
+        }
         back={
-          <div className="tile-label" style={{ textAlign: 'left' }}>
+          <div className="flip-body flip-scroll" style={{ textAlign: 'left' }}>
             {vitals.transcript && vitals.transcript.trim().length > 0
-              ? <p style={{ margin:0, whiteSpace:'pre-wrap' }}>"{vitals.transcript}"</p>
+              ? 
+              <p style={{ margin:0, whiteSpace:'pre-wrap' }}><strong className="ai-summary-title">Patient's Transcript: <br></br></strong><br></br>"{vitals.transcript}"</p>
               : <span className="flip-title">Patient's Transcript (empty)</span>}
           </div>
         }
